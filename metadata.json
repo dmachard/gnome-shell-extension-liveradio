@@ -1,0 +1,8 @@
+{
+  "name": "Live Radio",
+  "description": "Listen to live radio stations directly from the GNOME Shell panel",
+  "uuid": "liveradio@dmachard.dev",
+  "shell-version": [
+    "48", "49"
+  ]
+}

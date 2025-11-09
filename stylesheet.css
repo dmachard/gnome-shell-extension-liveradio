@@ -1,0 +1,48 @@
+/* Plugin icon in the top bar */
+.liveradio-panel-icon {
+    height: 80%;  
+    width: auto;      
+    margin-right: 6px;
+}
+
+/* Radio logo in the top bar */
+.liveradio-radio-logo {
+    height: 60%;
+    width: auto;
+    margin-right: 6px;
+    vertical-align: middle;
+    border-radius: 4px;
+    transition: opacity 0.2s;
+}
+
+/* Hide radio logo when no station is playing */
+.liveradio-radio-logo[visible="false"] {
+    opacity: 0.4;
+}
+
+/* Now Playing label in the top bar */
+.liveradio-now-playing {
+    font-size: 12px;
+    vertical-align: middle;
+    color: #ffffff; /* default white text, change if needed */
+}
+
+/* Menu item styling */
+.popup-menu-item {
+    padding: 4px 8px;
+    transition: background-color 0.2s;
+}
+
+/* Radio icons inside the menu */
+.popup-menu-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+    border-radius: 4px;
+    transition: opacity 0.2s;
+}
+
+/* Hover effect applied via JS using 'hovered' class */
+.popup-menu-item.hovered {
+    background-color: rgba(255, 255, 255, 0.1);
+}
