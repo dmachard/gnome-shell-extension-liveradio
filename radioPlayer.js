@@ -20,7 +20,6 @@ class RadioPlayer extends GObject.Object {
         this.currentStation = null;
         this.isPlaying = false;
         this._gstInitialized = false;
-        log('[LiveRadio] RadioPlayer created (GStreamer not yet initialized)');
     }
 
     _ensureGst() {
@@ -29,12 +28,10 @@ class RadioPlayer extends GObject.Object {
                 Gst.init(null);
             }
             this._gstInitialized = true;
-            log('[LiveRadio] GStreamer initialized');
         }
     }
 
     play(url) {
-        log('[LiveRadio] RadioPlayer.play() URL: ' + url);
         this._ensureGst();
         this.stop();
 
@@ -50,7 +47,6 @@ class RadioPlayer extends GObject.Object {
 
             // Set the URI
             this.pipeline.set_property('uri', url);
-            log('[LiveRadio] URI set: ' + url);
 
             // Set volume (0.0 to 1.0)
             this.pipeline.set_property('volume', 1.0);
@@ -73,7 +69,6 @@ class RadioPlayer extends GObject.Object {
             }
 
             this.isPlaying = true;
-            log('[LiveRadio] Playback started');
             return true;
 
         } catch (e) {
@@ -86,8 +81,6 @@ class RadioPlayer extends GObject.Object {
     }
 
     stop() {
-        log('[LiveRadio] RadioPlayer.stop() called');
-        
         if (this.bus && this.watchId) {
             this.bus.disconnect(this.watchId);
             this.bus.remove_signal_watch();
@@ -96,14 +89,12 @@ class RadioPlayer extends GObject.Object {
         }
 
         if (this.pipeline) {
-            log('[LiveRadio] Stopping pipeline');
             this.pipeline.set_state(Gst.State.NULL);
             this.pipeline = null;
         }
 
         this.isPlaying = false;
         this.currentStation = null;
-        log('[LiveRadio] Stop completed');
     }
 
     setCurrentStation(station) {
@@ -124,13 +115,7 @@ class RadioPlayer extends GObject.Object {
             Main.notify(_('Playback error'), error.message);
             this.stop();
         } else if (type === Gst.MessageType.EOS) {
-            log('[LiveRadio] End of stream');
             this.stop();
-        } else if (type === Gst.MessageType.STATE_CHANGED) {
-            let [oldState, newState, pendingState] = message.parse_state_changed();
-            if (message.src === this.pipeline) {
-                log('[LiveRadio] State changed: ' + oldState + ' -> ' + newState);
-            }
         }
     }
 });

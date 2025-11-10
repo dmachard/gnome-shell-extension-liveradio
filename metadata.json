@@ -3,6 +3,10 @@
   "description": "Listen to live radio stations directly from the GNOME Shell panel",
   "uuid": "liveradio@dmachard.dev",
   "shell-version": [
-    "48", "49"
-  ]
+    "48",
+    "49"
+  ],
+  "version": 1,
+  "url": "https://github.com/dmachard/gnome-shell-extension-liveradio",
+  "settings-schema": "org.gnome.shell.extensions.liveradio"
 }
