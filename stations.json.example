@@ -1,37 +1,22 @@
 [
   {
-    "name": "BBC Radio 1",
-    "url": "https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one",
-    "icon": "bbc-radio1.png"
+    "name": "OUI FM",
+    "url": "https://ouifm.ice.infomaniak.ch/ouifm-high.mp3",
+    "logo": "OuiFM.png"
   },
   {
-    "name": "France Inter",
-    "url": "https://icecast.radiofrance.fr/franceinter-midfi.mp3",
-    "icon": "france-inter.png"
+    "name": "RTL2",
+    "url": "http://streamer-02.rtl.fr/rtl2-1-44-128",
+    "logo": "RTL2.png"
   },
   {
-    "name": "NRJ",
-    "url": "https://streaming.nrjaudio.fm/nrj_128.mp3"
+    "name": "Ici Normandie",
+    "url": "https://icecast.radiofrance.fr/fbbassenormandie-midfi.mp3",
+    "logo": "ICI.png"
   },
   {
-    "name": "RTL",
-    "url": "https://streaming.radio.rtl.fr/rtl-1-44-128",
-    "icon": "rtl.png"
-  },
-  {
-    "name": "Classic FM",
-    "url": "https://media-ice.musicradio.com/ClassicFMMP3"
-  },
-  {
-    "name": "Jazz FM",
-    "url": "https://edge-bauerall-01-gos2.sharp-stream.com/jazz.mp3"
-  },
-  {
-    "name": "Smooth Radio",
-    "url": "https://media-ice.musicradio.com/SmoothUKMP3"
-  },
-  {
-    "name": "Heart Radio",
-    "url": "https://media-ice.musicradio.com/HeartLondonMP3"
+    "name": "Rire & Chansons",
+    "url": "https://streaming.nrjaudio.fm/oua8afw2dqao",
+    "logo": "Rire&Chansons.webp"
   }
 ]
