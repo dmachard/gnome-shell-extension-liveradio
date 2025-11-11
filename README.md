@@ -95,7 +95,7 @@ Nov 11 10:30:20 denis-laptop gnome-shell[207832]: [LiveRadio] ERROR: Failed to s
 
 ## Build for website
 
-Documentation for developper: https://gjs.guide/extensions/
+Developers Guide: https://gjs.guide/extensions/
 
 ```bash
 cd ~/.local/share/gnome-shell/extensions/liveradio@dmachard.dev
