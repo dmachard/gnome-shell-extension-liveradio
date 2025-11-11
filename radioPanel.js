@@ -71,6 +71,7 @@ class RadioPanel extends PanelMenu.Button {
             this.radios = JSON.parse(radiosJson);
         } catch (e) {
             Main.notify(_('Live Radio Error'), _('Error loading radios: ') + e.message);
+            log('[LiveRadio] ERROR: Error loading radios: ' + e.message);
             this.radios = [];
         }
     }
@@ -283,6 +284,7 @@ class RadioPanel extends PanelMenu.Button {
         } else {
             this._updateNowPlaying(false);
             Main.notify(_('Live Radio'), _('Failed to play: ') + radio.name);
+            log('[LiveRadio] ERROR: Failed to play radio ' + radio.name);
         }
     }
 

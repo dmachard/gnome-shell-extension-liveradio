@@ -68,11 +68,30 @@ export default class LiveRadioPreferences extends ExtensionPreferences {
                 const radios = JSON.parse(text);
                 if (!Array.isArray(radios))
                     throw new Error('Radios must be an array');
-                for (const r of radios)
-                    if (!r.name || !r.url)
-                        throw new Error('Each radio must have "name" and "url"');
-                settings.set_string('radios', JSON.stringify(radios));
 
+                // Clean and validate each radio station
+                const cleanedRadios = radios.map((r, index) => {
+                    if (!r.name || !r.url)
+                        throw new Error(`Radio at index ${index} must have "name" and "url"`);
+                    
+                    // Trim whitespace from URL
+                    const cleanedUrl = r.url.trim();
+
+                    // Validate URL format
+                    if (!cleanedUrl.startsWith('http://') && !cleanedUrl.startsWith('https://')) {
+                        throw new Error(`Invalid URL for "${r.name}": must start with http:// or https://`);
+                    }
+                    
+                    // Return cleaned radio object
+                    return {
+                        ...r,
+                        name: r.name.trim(),
+                        url: cleanedUrl
+                    };
+                });
+
+                // Save cleaned radios back to settings
+                settings.set_string('radios', JSON.stringify(cleanedRadios));
                 window.close();
             } catch (e) {
                 showDialog('Invalid JSON', e.message, true);

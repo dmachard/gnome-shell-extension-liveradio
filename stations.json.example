@@ -1,0 +1,37 @@
+[
+  {
+    "name": "BBC Radio 1",
+    "url": "https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one",
+    "icon": "bbc-radio1.png"
+  },
+  {
+    "name": "France Inter",
+    "url": "https://icecast.radiofrance.fr/franceinter-midfi.mp3",
+    "icon": "france-inter.png"
+  },
+  {
+    "name": "NRJ",
+    "url": "https://streaming.nrjaudio.fm/nrj_128.mp3"
+  },
+  {
+    "name": "RTL",
+    "url": "https://streaming.radio.rtl.fr/rtl-1-44-128",
+    "icon": "rtl.png"
+  },
+  {
+    "name": "Classic FM",
+    "url": "https://media-ice.musicradio.com/ClassicFMMP3"
+  },
+  {
+    "name": "Jazz FM",
+    "url": "https://edge-bauerall-01-gos2.sharp-stream.com/jazz.mp3"
+  },
+  {
+    "name": "Smooth Radio",
+    "url": "https://media-ice.musicradio.com/SmoothUKMP3"
+  },
+  {
+    "name": "Heart Radio",
+    "url": "https://media-ice.musicradio.com/HeartLondonMP3"
+  }
+]

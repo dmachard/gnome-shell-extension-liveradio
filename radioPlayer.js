@@ -6,7 +6,7 @@
 
 import GObject from 'gi://GObject';
 import Gst from 'gi://Gst';
-import * as Main from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 
@@ -41,7 +41,6 @@ class RadioPlayer extends GObject.Object {
             
             if (!this.pipeline) {
                 log('[LiveRadio] ERROR: Could not create playbin element');
-                Main.notify(_('Error'), _('Could not create audio player'));
                 return false;
             }
 
@@ -63,7 +62,6 @@ class RadioPlayer extends GObject.Object {
             
             if (ret === Gst.StateChangeReturn.FAILURE) {
                 log('[LiveRadio] ERROR: Failed to set pipeline to PLAYING state');
-                Main.notify(_('Error'), _('Failed to start playback'));
                 this.stop();
                 return false;
             }
@@ -74,7 +72,6 @@ class RadioPlayer extends GObject.Object {
         } catch (e) {
             log('[LiveRadio] ERROR in play(): ' + e.message);
             log('[LiveRadio] Stack: ' + e.stack);
-            Main.notify(_('Error'), _('Error during playback: ') + e.message);
             this.stop();
             return false;
         }
@@ -112,7 +109,6 @@ class RadioPlayer extends GObject.Object {
             let [error, debug] = message.parse_error();
             log('[LiveRadio] ERROR message: ' + error.message);
             log('[LiveRadio] Debug info: ' + debug);
-            Main.notify(_('Playback error'), error.message);
             this.stop();
         } else if (type === Gst.MessageType.EOS) {
             this.stop();
