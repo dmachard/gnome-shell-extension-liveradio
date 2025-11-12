@@ -11,12 +11,8 @@ import {RadioPanel} from './radioPanel.js';
 
 export default class LiveRadioExtension extends Extension {
     enable() {
-        try {
-            this._radioPanel = new RadioPanel(this);
-            Main.panel.addToStatusArea(this.uuid, this._radioPanel);
-        } catch (e) {
-            Main.notify(_('Live Radio Error'), _('Failed to enable extension: ') + e.message);
-        }
+        this._radioPanel = new RadioPanel(this);
+        Main.panel.addToStatusArea(this.uuid, this._radioPanel);
     }
 
     disable() {

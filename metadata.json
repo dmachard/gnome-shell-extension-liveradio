@@ -6,7 +6,7 @@
     "48",
     "49"
   ],
-  "version": 1,
+  "version": 3,
   "url": "https://github.com/dmachard/gnome-shell-extension-liveradio",
   "settings-schema": "org.gnome.shell.extensions.liveradio"
 }

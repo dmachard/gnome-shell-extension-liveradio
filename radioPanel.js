@@ -71,7 +71,7 @@ class RadioPanel extends PanelMenu.Button {
             this.radios = JSON.parse(radiosJson);
         } catch (e) {
             Main.notify(_('Live Radio Error'), _('Error loading radios: ') + e.message);
-            log('[LiveRadio] ERROR: Error loading radios: ' + e.message);
+            console.error('[LiveRadio] ERROR: Error loading radios: ' + e.message);
             this.radios = [];
         }
     }
@@ -215,15 +215,14 @@ class RadioPanel extends PanelMenu.Button {
         try {
             const userIconsDir = GLib.build_filenamev([GLib.get_user_data_dir(), 'liveradio', 'icons']);
 
-            // vérifier si le dossier existe
             const dirFile = Gio.File.new_for_path(userIconsDir);
             if (!dirFile.query_exists(null)) {
                 try {
-                    // créer le dossier récursivement
                     dirFile.make_directory_with_parents(null);
-                    log(`Dossier créé : ${userIconsDir}`);
                 } catch (e) {
-                    log(`Erreur lors de la création du dossier des logos : ${e.message}`);
+                    console.error(`Error creating icons directory: ${e.message}`);
+                    logoBox.set_child(fallbackIcon);
+                    return;
                 }
             }
 
@@ -284,7 +283,7 @@ class RadioPanel extends PanelMenu.Button {
         } else {
             this._updateNowPlaying(false);
             Main.notify(_('Live Radio'), _('Failed to play: ') + radio.name);
-            log('[LiveRadio] ERROR: Failed to play radio ' + radio.name);
+            console.error('[LiveRadio] ERROR: Failed to play radio ' + radio.name);
         }
     }
 

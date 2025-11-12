@@ -40,7 +40,7 @@ class RadioPlayer extends GObject.Object {
             this.pipeline = Gst.ElementFactory.make('playbin', 'player');
             
             if (!this.pipeline) {
-                log('[LiveRadio] ERROR: Could not create playbin element');
+                console.error('[LiveRadio] ERROR: Could not create playbin element');
                 return false;
             }
 
@@ -61,7 +61,7 @@ class RadioPlayer extends GObject.Object {
             let ret = this.pipeline.set_state(Gst.State.PLAYING);
             
             if (ret === Gst.StateChangeReturn.FAILURE) {
-                log('[LiveRadio] ERROR: Failed to set pipeline to PLAYING state');
+                console.error('[LiveRadio] ERROR: Failed to set pipeline to PLAYING state');
                 this.stop();
                 return false;
             }
@@ -70,8 +70,8 @@ class RadioPlayer extends GObject.Object {
             return true;
 
         } catch (e) {
-            log('[LiveRadio] ERROR in play(): ' + e.message);
-            log('[LiveRadio] Stack: ' + e.stack);
+            console.error('[LiveRadio] ERROR in play(): ' + e.message);
+            console.error('[LiveRadio] Stack: ' + e.stack);
             this.stop();
             return false;
         }
@@ -107,8 +107,8 @@ class RadioPlayer extends GObject.Object {
 
         if (type === Gst.MessageType.ERROR) {
             let [error, debug] = message.parse_error();
-            log('[LiveRadio] ERROR message: ' + error.message);
-            log('[LiveRadio] Debug info: ' + debug);
+            console.error('[LiveRadio] ERROR message: ' + error.message);
+            console.error('[LiveRadio] Debug info: ' + debug);
             this.stop();
         } else if (type === Gst.MessageType.EOS) {
             this.stop();

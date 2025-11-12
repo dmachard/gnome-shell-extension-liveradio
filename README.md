@@ -97,6 +97,9 @@ Nov 11 10:30:20 denis-laptop gnome-shell[207832]: [LiveRadio] ERROR: Failed to s
 
 Developers Guide: https://gjs.guide/extensions/
 
+Update the version in `metadata.json`
+Zip and upload at  https://extensions.gnome.org/upload/
+
 ```bash
 cd ~/.local/share/gnome-shell/extensions/liveradio@dmachard.dev
 
@@ -107,5 +110,5 @@ zip -r ~/liveradio@dmachard.dev.shell-extension.zip \
     radioPlayer.js \
     metadata.json \
     stylesheet.css \
-    schemas/
+    schemas/org.gnome.shell.extensions.liveradio.gschema.xml
 ```
