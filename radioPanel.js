@@ -80,7 +80,7 @@ class RadioPanel extends PanelMenu.Button {
         // Clear all existing menu items
         this.menu.removeAll();
 
-        // --- Stop Button Section ---
+        // Stop Button Section (Fixed at Top)
         let stopContainer = new St.BoxLayout({
             vertical: false,
             x_expand: true,
@@ -103,9 +103,9 @@ class RadioPanel extends PanelMenu.Button {
 
         let stopMenuItem = new PopupMenu.PopupBaseMenuItem({
             reactive: true,
-            can_focus: false
+            can_focus: true
         });
-        stopMenuItem.style = 'padding: 2px; min-height: 0;';
+        stopMenuItem.style = 'padding: 5px;';
         stopMenuItem.add_child(stopContainer);
 
         stopMenuItem.connect('activate', () => {
@@ -113,26 +113,41 @@ class RadioPanel extends PanelMenu.Button {
             this.menu.close();
         });
         this.menu.addMenuItem(stopMenuItem);
-
-        // --- Separator and Radio List ---
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        // List of configured radios
+        // Scrollable Radio List
+        // We create a ScrollView to prevent overflow
+        let scrollView = new St.ScrollView({
+            x_expand: true,
+            y_expand: true,
+            hscroll_policy: St.PolicyType.NEVER,
+            vscroll_policy: St.PolicyType.AUTOMATIC,
+            // Limit height so it doesn't go off screen
+            // 400px is usually safe, or calculate based on screen height
+            style: 'max-height: 400px;' 
+        });
+
+        // This section holds the actual menu items inside the ScrollView
+        let radioSection = new PopupMenu.PopupMenuSection();
+        
         if (this.radios.length === 0) {
             let noRadiosItem = new PopupMenu.PopupMenuItem(_('No radios configured'));
             noRadiosItem.sensitive = false;
-            this.menu.addMenuItem(noRadiosItem);
+            radioSection.addMenuItem(noRadiosItem);
         } else {
             this.radios.forEach(radio => {
                 let radioItem = this._createRadioMenuItem(radio);
-                this.menu.addMenuItem(radioItem);
+                radioSection.addMenuItem(radioItem);
             });
         }
 
-        // --- Separator and Radio List ---
+        // Add the section to the ScrollView, and the ScrollView to the main menu
+        scrollView.add_actor(radioSection.actor);
+        this.menu.addMenuItem(scrollView);
+
+        // Settings Button Section (Fixed at Bottom)
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        // --- Settings Button Section ---
         let settingsContainer = new St.BoxLayout({
             vertical: false,
             x_expand: true,
@@ -154,9 +169,9 @@ class RadioPanel extends PanelMenu.Button {
         
         let settingsMenuItem = new PopupMenu.PopupBaseMenuItem({
             reactive: true,
-            can_focus: false
+            can_focus: true
         });
-        settingsMenuItem.style = 'padding: 2px; min-height: 0;';
+        settingsMenuItem.style = 'padding: 5px;';
         settingsMenuItem.add_child(settingsContainer);
         
         settingsMenuItem.connect('activate', () => {
