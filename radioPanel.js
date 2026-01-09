@@ -86,67 +86,62 @@ class RadioPanel extends PanelMenu.Button {
         // Clear all existing menu items
         this.menu.removeAll();
 
-        // --- Controls Section (Stop + Mute) ---
-        let controlsContainer = new St.BoxLayout({
+        // --- Stop Button ---
+        let stopContainer = new St.BoxLayout({
             vertical: false,
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER
         });
-
-        // Stop button
-        let stopButton = new St.Button({
-            style_class: 'liveradio-control-button',
-            can_focus: true,
-            x_expand: true
-        });
-        let stopBox = new St.BoxLayout({ vertical: false });
-        stopBox.add_child(new St.Icon({
+        stopContainer.add_child(new St.Icon({
             icon_name: 'media-playback-stop-symbolic',
             icon_size: 18,
             style_class: 'liveradio-controls-icon'
         }));
-        stopBox.add_child(new St.Label({
+        stopContainer.add_child(new St.Label({
             text: _('Stop'),
             y_align: Clutter.ActorAlign.CENTER
         }));
-        stopButton.set_child(stopBox);
-        stopButton.connect('clicked', () => {
+
+        let stopMenuItem = new PopupMenu.PopupBaseMenuItem({
+            reactive: true,
+            can_focus: false
+        });
+        stopMenuItem.style = 'padding: 2px; min-height: 0;';
+        stopMenuItem.add_child(stopContainer);
+        stopMenuItem.connect('activate', () => {
             this._stopRadio();
             this.menu.close();
         });
-        controlsContainer.add_child(stopButton);
+        this.menu.addMenuItem(stopMenuItem);
 
-        // Mute button
-        let muteButton = new St.Button({
-            style_class: 'liveradio-control-button',
-            can_focus: true,
-            x_expand: true
+        // --- Mute Button ---
+        let muteContainer = new St.BoxLayout({
+            vertical: false,
+            x_expand: true,
+            y_align: Clutter.ActorAlign.CENTER
         });
         this._muteIcon = new St.Icon({
             icon_name: 'audio-volume-high-symbolic',
             icon_size: 18,
             style_class: 'liveradio-controls-icon'
         });
-        let muteBox = new St.BoxLayout({ vertical: false });
-        muteBox.add_child(this._muteIcon);
+        muteContainer.add_child(this._muteIcon);
         this._muteLabel = new St.Label({
             text: _('Mute'),
             y_align: Clutter.ActorAlign.CENTER
         });
-        muteBox.add_child(this._muteLabel);
-        muteButton.set_child(muteBox);
-        muteButton.connect('clicked', () => {
-            this._toggleMute();
-        });
-        controlsContainer.add_child(muteButton);
+        muteContainer.add_child(this._muteLabel);
 
-        let controlsMenuItem = new PopupMenu.PopupBaseMenuItem({
-            reactive: false,
+        let muteMenuItem = new PopupMenu.PopupBaseMenuItem({
+            reactive: true,
             can_focus: false
         });
-        controlsMenuItem.style = 'padding: 2px; min-height: 0;';
-        controlsMenuItem.add_child(controlsContainer);
-        this.menu.addMenuItem(controlsMenuItem);
+        muteMenuItem.style = 'padding: 2px; min-height: 0;';
+        muteMenuItem.add_child(muteContainer);
+        muteMenuItem.connect('activate', () => {
+            this._toggleMute();
+        });
+        this.menu.addMenuItem(muteMenuItem);
 
         // --- Separator and Radio List ---
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
