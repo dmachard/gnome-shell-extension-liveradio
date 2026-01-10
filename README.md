@@ -10,6 +10,8 @@ Listen to live radio stations directly from the GNOME Shell panel
 - JSON configuration for easy editing of radio lists
 - Support for radio icons
 - Lightweight and easy to use
+- Stop/Mute buttons
+- Scroll volume control
 
 ## Compatibility
 
