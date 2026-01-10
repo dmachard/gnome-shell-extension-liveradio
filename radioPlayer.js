@@ -102,6 +102,22 @@ class RadioPlayer extends GObject.Object {
         return this.currentStation;
     }
 
+    getVolume() {
+        if (this.pipeline) {
+            return this.pipeline.get_property('volume');
+        }
+        return 1.0;
+    }
+
+    setVolume(volume) {
+        // Clamp volume between 0.0 and 1.0
+        volume = Math.max(0.0, Math.min(1.0, volume));
+        if (this.pipeline) {
+            this.pipeline.set_property('volume', volume);
+        }
+        return volume;
+    }
+
     _onBusMessage(bus, message) {
         let type = message.type;
 
