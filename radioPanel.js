@@ -13,7 +13,6 @@ import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js'
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-
 import {RadioPlayer} from './radioPlayer.js';
 
 export const RadioPanel = GObject.registerClass(
@@ -25,6 +24,8 @@ class RadioPanel extends PanelMenu.Button {
         this.settings = extension.getSettings();
         this.radios = [];
         this.player = null;
+        this._isMuted = false;
+        this._volumeBeforeMute = 1.0;
 
         // Load settings
         this._settingsChangedId = this.settings.connect('changed::radios', () => {
@@ -58,6 +59,11 @@ class RadioPanel extends PanelMenu.Button {
 
         this.add_child(box);
 
+        // Connect scroll event for volume control
+        this.connect('scroll-event', (actor, event) => {
+            return this._onScroll(event);
+        });
+
         GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._loadRadios();
             this._buildMenu();
@@ -80,26 +86,21 @@ class RadioPanel extends PanelMenu.Button {
         // Clear all existing menu items
         this.menu.removeAll();
 
-        // --- Stop Button Section ---
+        // --- Stop Button ---
         let stopContainer = new St.BoxLayout({
             vertical: false,
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER
         });
-        
-        let stopIcon = new St.Icon({
+        stopContainer.add_child(new St.Icon({
             icon_name: 'media-playback-stop-symbolic',
             icon_size: 18,
             style_class: 'liveradio-controls-icon'
-        });
-
-        let stopLabel = new St.Label({
+        }));
+        stopContainer.add_child(new St.Label({
             text: _('Stop'),
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-
-        stopContainer.add_child(stopIcon);
-        stopContainer.add_child(stopLabel);
+            y_align: Clutter.ActorAlign.CENTER
+        }));
 
         let stopMenuItem = new PopupMenu.PopupBaseMenuItem({
             reactive: true,
@@ -107,12 +108,40 @@ class RadioPanel extends PanelMenu.Button {
         });
         stopMenuItem.style = 'padding: 2px; min-height: 0;';
         stopMenuItem.add_child(stopContainer);
-
         stopMenuItem.connect('activate', () => {
             this._stopRadio();
             this.menu.close();
         });
         this.menu.addMenuItem(stopMenuItem);
+
+        // --- Mute Button ---
+        let muteContainer = new St.BoxLayout({
+            vertical: false,
+            x_expand: true,
+            y_align: Clutter.ActorAlign.CENTER
+        });
+        this._muteIcon = new St.Icon({
+            icon_name: 'audio-volume-high-symbolic',
+            icon_size: 18,
+            style_class: 'liveradio-controls-icon'
+        });
+        muteContainer.add_child(this._muteIcon);
+        this._muteLabel = new St.Label({
+            text: _('Mute'),
+            y_align: Clutter.ActorAlign.CENTER
+        });
+        muteContainer.add_child(this._muteLabel);
+
+        let muteMenuItem = new PopupMenu.PopupBaseMenuItem({
+            reactive: true,
+            can_focus: false
+        });
+        muteMenuItem.style = 'padding: 2px; min-height: 0;';
+        muteMenuItem.add_child(muteContainer);
+        muteMenuItem.connect('activate', () => {
+            this._toggleMute();
+        });
+        this.menu.addMenuItem(muteMenuItem);
 
         // --- Separator and Radio List ---
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -292,6 +321,57 @@ class RadioPanel extends PanelMenu.Button {
             this.player.stop();
         }
         this._updateNowPlaying(false);
+    }
+
+    _onScroll(event) {
+        if (!this.player || !this.player.isPlaying) {
+            return Clutter.EVENT_PROPAGATE;
+        }
+
+        const direction = event.get_scroll_direction();
+        const volumeStep = 0.05;
+        let currentVolume = this.player.getVolume();
+
+        if (direction === Clutter.ScrollDirection.UP) {
+            currentVolume = this.player.setVolume(currentVolume + volumeStep);
+        } else if (direction === Clutter.ScrollDirection.DOWN) {
+            currentVolume = this.player.setVolume(currentVolume - volumeStep);
+        }
+
+        // Update mute state to reflect scroll changes
+        this._updateMuteUI(currentVolume === 0);
+
+        return Clutter.EVENT_STOP;
+    }
+
+    _toggleMute() {
+        if (!this.player) return;
+
+        if (this._isMuted) {
+            // Unmute: restore previous volume
+            this.player.setVolume(this._volumeBeforeMute);
+            this._updateMuteUI(false);
+        } else {
+            // Mute: save current volume and set to 0
+            this._volumeBeforeMute = this.player.getVolume();
+            if (this._volumeBeforeMute === 0) {
+                this._volumeBeforeMute = 1.0; // Don't save 0 as "before mute"
+            }
+            this.player.setVolume(0);
+            this._updateMuteUI(true);
+        }
+    }
+
+    _updateMuteUI(muted) {
+        this._isMuted = muted;
+        if (this._muteIcon) {
+            this._muteIcon.icon_name = muted
+                ? 'audio-volume-muted-symbolic'
+                : 'audio-volume-high-symbolic';
+        }
+        if (this._muteLabel) {
+            this._muteLabel.text = muted ? _('Unmute') : _('Mute');
+        }
     }
 
     destroy() {
