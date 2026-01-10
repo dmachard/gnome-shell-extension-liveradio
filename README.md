@@ -2,7 +2,7 @@
 
 Listen to live radio stations directly from the GNOME Shell panel
 
-<img src="liveradio-overview.png" alt="Live-RADIO"/>
+<img src="liveradio-overview.png" alt="Live-RADIO" width="300"/>
 
 ## Features
 
