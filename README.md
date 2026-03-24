@@ -19,6 +19,7 @@ Listen to live radio stations directly from the GNOME Shell panel
 |---------------------|-----------|
 | 48                  | ✅        |
 | 49                  | ✅        |
+| 50                  | ✅        |
 
 ## Installation
 

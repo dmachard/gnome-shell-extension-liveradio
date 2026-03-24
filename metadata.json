@@ -4,9 +4,10 @@
   "uuid": "liveradio@dmachard.dev",
   "shell-version": [
     "48",
-    "49"
+    "49",
+    "50"
   ],
-  "version": 4,
+  "version": 5,
   "url": "https://github.com/dmachard/gnome-shell-extension-liveradio",
   "settings-schema": "org.gnome.shell.extensions.liveradio"
 }
