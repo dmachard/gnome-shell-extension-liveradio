@@ -240,37 +240,46 @@ class RadioPanel extends PanelMenu.Button {
         return item;
     }
 
+    _getGIcon(logo) {
+        if (!logo)
+            return null;
+
+        if (logo.startsWith('http://') || logo.startsWith('https://'))
+            return Gio.FileIcon.new(Gio.File.new_for_uri(logo));
+
+        const userIconsDir = GLib.build_filenamev([GLib.get_user_data_dir(), 'liveradio', 'icons']);
+        const filePath = GLib.build_filenamev([userIconsDir, logo]);
+        const file = Gio.File.new_for_path(filePath);
+
+        if (file.query_exists(null))
+            return Gio.FileIcon.new(file);
+
+        // Ensure directory exists for local icons if it doesn't
+        try {
+            const dirFile = Gio.File.new_for_path(userIconsDir);
+            if (!dirFile.query_exists(null))
+                dirFile.make_directory_with_parents(null);
+        } catch (e) {
+            console.error(`[LiveRadio] Error creating icons directory: ${e.message}`);
+        }
+
+        return null;
+    }
+
     _loadLogo(logoFile, logoBox, fallbackIcon) {
         try {
-            const userIconsDir = GLib.build_filenamev([GLib.get_user_data_dir(), 'liveradio', 'icons']);
-
-            const dirFile = Gio.File.new_for_path(userIconsDir);
-            if (!dirFile.query_exists(null)) {
-                try {
-                    dirFile.make_directory_with_parents(null);
-                } catch (e) {
-                    console.error(`Error creating icons directory: ${e.message}`);
-                    logoBox.set_child(fallbackIcon);
-                    return;
-                }
-            }
-
-            let filePath = GLib.build_filenamev([userIconsDir, logoFile]);
-            let file = Gio.File.new_for_path(filePath);
-
-            if (!file.query_exists(null)) {
+            const gicon = this._getGIcon(logoFile);
+            if (gicon) {
+                const icon = new St.Icon({
+                    gicon,
+                    icon_size: 32
+                });
+                logoBox.set_child(icon);
+            } else {
                 logoBox.set_child(fallbackIcon);
-                return;
             }
-
-            let gicon = Gio.FileIcon.new(file);
-            let icon = new St.Icon({
-                gicon: gicon,
-                icon_size: 32
-            });
-
-            logoBox.set_child(icon);
-        } catch {
+        } catch (e) {
+            console.error(`[LiveRadio] Error loading logo: ${e.message}`);
             logoBox.set_child(fallbackIcon);
         }
     }
@@ -281,11 +290,9 @@ class RadioPanel extends PanelMenu.Button {
             this.nowPlayingLabel.visible = true;
 
             if (radio.logo) {
-                const userIconsDir = GLib.build_filenamev([GLib.get_user_data_dir(), 'liveradio', 'icons']);
-                let filePath = GLib.build_filenamev([userIconsDir, radio.logo]);
-                let file = Gio.File.new_for_path(filePath);
-                if (file.query_exists(null)) {
-                    this.radioLogo.gicon = Gio.FileIcon.new(file);
+                const gicon = this._getGIcon(radio.logo);
+                if (gicon) {
+                    this.radioLogo.gicon = gicon;
                     this.radioLogo.visible = true;
                 } else {
                     this.radioLogo.visible = false;

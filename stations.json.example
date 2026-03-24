@@ -2,7 +2,7 @@
   {
     "name": "OUI FM",
     "url": "https://ouifm.ice.infomaniak.ch/ouifm-high.mp3",
-    "logo": "OuiFM.png"
+    "logo": "https://play-lh.googleusercontent.com/zlDIMlYvey0oe2hJwOyMuMGO2hSdUDSR6Hy2PnpoM_aM_NV2AgEBAAFM7-mZZdDiFhhggNhLwn5e8G6D7IN8=s512"
   },
   {
     "name": "RTL2",
@@ -18,5 +18,10 @@
     "name": "Rire & Chansons",
     "url": "https://streaming.nrjaudio.fm/oua8afw2dqao",
     "logo": "Rire&Chansons.webp"
+  },
+  {
+    "name": "RFM",
+    "url": "http://stream.rfm.fr/rfm.mp3",
+    "logo": "RFM.png"
   }
 ]

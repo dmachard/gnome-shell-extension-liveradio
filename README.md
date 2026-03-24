@@ -66,7 +66,7 @@ Radios are stored in a JSON format
   {
     "name": "Radio Paradise",
     "url": "https://stream.radioparadise.com/mp3-192",
-    "logo": "localradio.png"
+    "logo": "https://radioparadise.com/graphics/logo_200.png"
   }
 ]
 ```
@@ -77,7 +77,7 @@ Radios are stored in a JSON format
 Each radio can have:
 - name → Display name
 - url → Stream URL
-- logo → Optional icon. If empty or invalid, the default icon will be used.
+- logo → Optional icon. It can be a local filename or a full HTTP/HTTPS URL. If empty or invalid, the default icon will be used.
 
 You can add your custom icons in:
 
