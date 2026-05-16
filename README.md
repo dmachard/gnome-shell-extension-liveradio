@@ -36,7 +36,7 @@ Listen to live radio stations directly from the GNOME Shell panel
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/gnome-shell-extension-liveradio.git
+   git clone https://github.com/dmachard/gnome-shell-extension-liveradio.git
    cd gnome-shell-extension-liveradio
    ```
 
@@ -114,4 +114,13 @@ zip -r ~/liveradio@dmachard.dev.shell-extension.zip \
     metadata.json \
     stylesheet.css \
     schemas/org.gnome.shell.extensions.liveradio.gschema.xml
+```
+
+Before uploading, you can run the Shexli static analyzer locally to catch common packaging and review issues early.
+
+```bash
+virtualenv venv
+. venv/bin/activate
+pip install -U shexli
+shexli path_to_zip_or_folder
 ```
