@@ -34,7 +34,6 @@ class RadioPanel extends PanelMenu.Button {
         });
 
         let box = new St.BoxLayout({
-            vertical: false,
             y_align: Clutter.ActorAlign.CENTER
         });
 
@@ -88,7 +87,6 @@ class RadioPanel extends PanelMenu.Button {
 
         // --- Stop Button ---
         let stopContainer = new St.BoxLayout({
-            vertical: false,
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER
         });
@@ -116,7 +114,6 @@ class RadioPanel extends PanelMenu.Button {
 
         // --- Mute Button ---
         let muteContainer = new St.BoxLayout({
-            vertical: false,
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER
         });
@@ -163,7 +160,6 @@ class RadioPanel extends PanelMenu.Button {
 
         // --- Settings Button Section ---
         let settingsContainer = new St.BoxLayout({
-            vertical: false,
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER
         });
@@ -199,7 +195,6 @@ class RadioPanel extends PanelMenu.Button {
         let item = new PopupMenu.PopupBaseMenuItem({ style_class: 'popup-menu-item' });
 
         let box = new St.BoxLayout({
-            vertical: false,
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER
         });
