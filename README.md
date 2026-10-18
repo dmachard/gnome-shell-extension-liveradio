@@ -149,5 +149,6 @@ Before uploading, you can run the Shexli static analyzer locally to catch common
 virtualenv venv
 . venv/bin/activate
 pip install -U shexli
+pip install "tree-sitter<0.26.0"
 shexli path_to_zip_or_folder
 ```
