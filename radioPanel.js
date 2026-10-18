@@ -193,6 +193,7 @@ class RadioPanel extends PanelMenu.Button {
 
     _createRadioMenuItem(radio) {
         let item = new PopupMenu.PopupBaseMenuItem({ style_class: 'popup-menu-item' });
+        item.style = 'padding: 3px; min-height: 0;';
 
         let box = new St.BoxLayout({
             x_expand: true,
@@ -201,14 +202,14 @@ class RadioPanel extends PanelMenu.Button {
 
         let logoBox = new St.Bin({
             style_class: 'popup-menu-icon',
-            width: 40,
-            height: 40,
+            width: 24,
+            height: 24,
             y_align: Clutter.ActorAlign.CENTER
         });
 
         let defaultIcon = new St.Icon({
             icon_name: 'audio-x-generic-symbolic',
-            icon_size: 32
+            icon_size: 20
         });
         logoBox.set_child(defaultIcon);
         box.add_child(logoBox);
@@ -267,7 +268,7 @@ class RadioPanel extends PanelMenu.Button {
             if (gicon) {
                 const icon = new St.Icon({
                     gicon,
-                    icon_size: 32
+                    icon_size: 24
                 });
                 logoBox.set_child(icon);
             } else {
