@@ -20,6 +20,7 @@ Listen to live radio stations directly from the GNOME Shell panel
 | 48                  | ✅        |
 | 49                  | ✅        |
 | 50                  | ✅        |
+| 51                  | ✅        |
 
 ## Installation
 
@@ -54,6 +55,17 @@ Listen to live radio stations directly from the GNOME Shell panel
    ```bash
    gnome-extensions enable liveradio@dmachard.dev
    ```
+
+### Testing without installing (Isolated session)
+
+You can run and test the extension in an isolated nested GNOME Shell window without modifying your current desktop session:
+
+```bash
+chmod +x test-nested.sh
+./test-nested.sh
+```
+
+Close the nested window when you are done.
 
 ## Settings
 
