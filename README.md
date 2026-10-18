@@ -20,6 +20,7 @@ Listen to live radio stations directly from the GNOME Shell panel
 | 48                  | ✅        |
 | 49                  | ✅        |
 | 50                  | ✅        |
+| 51                  | ✅        |
 
 ## Installation
 
@@ -55,6 +56,17 @@ Listen to live radio stations directly from the GNOME Shell panel
    gnome-extensions enable liveradio@dmachard.dev
    ```
 
+### Testing without installing (Isolated session)
+
+You can run and test the extension in an isolated nested GNOME Shell window without modifying your current desktop session:
+
+```bash
+chmod +x test-nested.sh
+./test-nested.sh
+```
+
+Close the nested window when you are done.
+
 ## Settings
 
 Open the LiveRadio preferences from GNOME Extensions to managing Radio Stations.
@@ -86,6 +98,21 @@ You can add your custom icons in:
 ```
 
 The extension will create `~/.local/share/liveradio/icons/` automatically if it doesn’t exist.
+
+### Export / Import stations
+
+You can export or import your stations list via command line using `dconf`:
+
+- **Export to a file:**
+  ```bash
+  dconf read /org/gnome/shell/extensions/liveradio/radios | sed "s/^'//;s/'$//" | jq . > stations.json
+  ```
+
+- **Import from a file:**
+  ```bash
+  dconf write /org/gnome/shell/extensions/liveradio/radios "'$(cat stations.json)'"
+  ```
+
 
 ## Troubleshooting
 

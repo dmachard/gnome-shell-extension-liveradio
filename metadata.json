@@ -8,7 +8,11 @@
     "50",
     "51"
   ],
-  "version": 5,
+  "version": 6,
   "url": "https://github.com/dmachard/gnome-shell-extension-liveradio",
+  "session-modes": [
+    "user",
+    "unlock-dialog"
+  ],
   "settings-schema": "org.gnome.shell.extensions.liveradio"
 }
