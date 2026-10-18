@@ -110,7 +110,7 @@ You can export or import your stations list via command line using `dconf`:
 
 - **Import from a file:**
   ```bash
-  dconf write /org/gnome/shell/extensions/liveradio/radios "$(cat stations.json)"
+  dconf write /org/gnome/shell/extensions/liveradio/radios "'$(cat stations.json)'"
   ```
 
 
