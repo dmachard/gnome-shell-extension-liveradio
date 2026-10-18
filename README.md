@@ -99,6 +99,21 @@ You can add your custom icons in:
 
 The extension will create `~/.local/share/liveradio/icons/` automatically if it doesn’t exist.
 
+### Export / Import stations
+
+You can export or import your stations list via command line using `dconf`:
+
+- **Export to a file:**
+  ```bash
+  dconf read /org/gnome/shell/extensions/liveradio/radios > stations.json
+  ```
+
+- **Import from a file:**
+  ```bash
+  dconf write /org/gnome/shell/extensions/liveradio/radios "$(cat stations.json)"
+  ```
+
+
 ## Troubleshooting
 
 View logs in real-time
