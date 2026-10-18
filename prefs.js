@@ -4,6 +4,8 @@ import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/
 
 export default class LiveRadioPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
+        window.set_default_size(720, 560);
+
         const settings = this.getSettings();
 
         const page = new Adw.PreferencesPage({
@@ -12,18 +14,27 @@ export default class LiveRadioPreferences extends ExtensionPreferences {
         });
         window.add(page);
 
+        const saveButton = new Gtk.Button({
+            label: 'Save',
+            css_classes: ['suggested-action'],
+            valign: Gtk.Align.CENTER,
+        });
+
         const group = new Adw.PreferencesGroup({
             title: 'Radio Stations',
             description: 'Edit your list of stations in JSON format. Station icons (if specified in the JSON) must be located in: ~/.local/share/liveradio/icons',
+            header_suffix: saveButton,
         });
         page.add(group);
 
         const textView = new Gtk.TextView({
             editable: true,
             monospace: true,
-            wrap_mode: Gtk.WrapMode.WORD_CHAR,
-            margin_top: 6,
-            margin_bottom: 6,
+            wrap_mode: Gtk.WrapMode.NONE,
+            top_margin: 12,
+            bottom_margin: 12,
+            left_margin: 14,
+            right_margin: 14,
         });
         
         const buffer = textView.get_buffer();
@@ -32,17 +43,45 @@ export default class LiveRadioPreferences extends ExtensionPreferences {
             -1
         );
 
+        // Lightweight JSON syntax highlighting
+        const tagTable = buffer.get_tag_table();
+        const keyTag = new Gtk.TextTag({ name: 'json-key', foreground: '#3584e4', weight: 700 });
+        const strTag = new Gtk.TextTag({ name: 'json-str', foreground: '#2ec27e' });
+        tagTable.add(keyTag);
+        tagTable.add(strTag);
+
+        const highlight = () => {
+            const [start, end] = buffer.get_bounds();
+            buffer.remove_all_tags(start, end);
+            const text = buffer.get_text(start, end, false);
+
+            const keyRegex = /"([^"]+)"\s*:/g;
+            let m;
+            while ((m = keyRegex.exec(text)) !== null) {
+                const s = buffer.get_iter_at_offset(m.index);
+                const e = buffer.get_iter_at_offset(m.index + m[1].length + 2);
+                buffer.apply_tag(keyTag, s, e);
+            }
+
+            const strRegex = /:\s*"([^"]*)"/g;
+            while ((m = strRegex.exec(text)) !== null) {
+                const valStart = m.index + m[0].indexOf('"');
+                const s = buffer.get_iter_at_offset(valStart);
+                const e = buffer.get_iter_at_offset(valStart + m[1].length + 2);
+                buffer.apply_tag(strTag, s, e);
+            }
+        };
+
+        highlight();
+        buffer.connect('changed', highlight);
+
         const scrolled = new Gtk.ScrolledWindow({
             child: textView,
-            min_content_height: 250,
+            min_content_height: 300,
             vexpand: true,
+            css_classes: ['card'],
         });
-
-        const saveButton = new Gtk.Button({
-            label: 'Save',
-            css_classes: ['suggested-action'],
-            halign: Gtk.Align.END,
-        });
+        group.add(scrolled);
 
         const showDialog = (heading, body, destructive = false) => {
             const dialog = new Adw.MessageDialog({
@@ -97,14 +136,5 @@ export default class LiveRadioPreferences extends ExtensionPreferences {
                 showDialog('Invalid JSON', e.message, true);
             }
         });
-
-        const box = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 8,
-        });
-        box.append(scrolled);
-        box.append(saveButton);
-
-        group.add(box);
     }
 }
