@@ -71,8 +71,7 @@ class RadioPlayer extends GObject.Object {
             return true;
 
         } catch (e) {
-            console.error('[LiveRadio] ERROR in play(): ' + e.message);
-            console.error('[LiveRadio] Stack: ' + e.stack);
+            console.error(`[LiveRadio] ERROR in play(): ${e.message}\n${e.stack}`);
             this.stop();
             return false;
         }
@@ -125,8 +124,7 @@ class RadioPlayer extends GObject.Object {
 
         if (type === Gst.MessageType.ERROR) {
             let [error, debug] = message.parse_error();
-            console.error('[LiveRadio] ERROR message: ' + error.message);
-            console.error('[LiveRadio] Debug info: ' + debug);
+            console.error(`[LiveRadio] ERROR message: ${error.message} (${debug})`);
             this.stop();
         } else if (type === Gst.MessageType.EOS) {
             this.stop();

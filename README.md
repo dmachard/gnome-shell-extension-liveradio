@@ -150,5 +150,5 @@ virtualenv venv
 . venv/bin/activate
 pip install -U shexli
 pip install "tree-sitter<0.26.0"
-shexli path_to_zip_or_folder
+shexli ~/liveradio@dmachard.dev.shell-extension.zip
 ```
