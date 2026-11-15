@@ -20,6 +20,7 @@ class RadioPlayer extends GObject.Object {
         this.currentStation = null;
         this.isPlaying = false;
         this._gstInitialized = false;
+        this._volume = 1.0;
     }
 
     _ensureGst() {
@@ -48,7 +49,7 @@ class RadioPlayer extends GObject.Object {
             this.pipeline.set_property('uri', url);
 
             // Set volume (0.0 to 1.0)
-            this.pipeline.set_property('volume', 1.0);
+            this.pipeline.set_property('volume', this._volume);
 
             // Get the bus and connect to messages
             this.bus = this.pipeline.get_bus();
@@ -106,12 +107,13 @@ class RadioPlayer extends GObject.Object {
         if (this.pipeline) {
             return this.pipeline.get_property('volume');
         }
-        return 1.0;
+        return this._volume;
     }
 
     setVolume(volume) {
         // Clamp volume between 0.0 and 1.0
         volume = Math.max(0.0, Math.min(1.0, volume));
+        this._volume = volume;
         if (this.pipeline) {
             this.pipeline.set_property('volume', volume);
         }

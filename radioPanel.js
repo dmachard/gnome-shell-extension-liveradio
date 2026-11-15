@@ -12,6 +12,7 @@ import Clutter from 'gi://Clutter';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import * as Slider from 'resource:///org/gnome/shell/ui/slider.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {RadioPlayer} from './radioPlayer.js';
 
@@ -24,8 +25,10 @@ class RadioPanel extends PanelMenu.Button {
         this.settings = extension.getSettings();
         this.radios = [];
         this.player = null;
+        this._volume = 1.0;
         this._isMuted = false;
         this._volumeBeforeMute = 1.0;
+        this._updatingSlider = false;
 
         // Load settings
         this._settingsChangedId = this.settings.connect('changed::radios', () => {
@@ -55,6 +58,14 @@ class RadioPanel extends PanelMenu.Button {
             visible: true
         });
         box.add_child(this.nowPlayingLabel);
+
+        this.panelVolumeIcon = new St.Icon({
+            icon_name: this._volumeIconName(this._volume),
+            style_class: 'liveradio-panel-volume',
+            visible: false,
+            icon_size: Math.floor(topBarHeight * (isWayland ? 0.5 : 0.3))
+        });
+        box.add_child(this.panelVolumeIcon);
 
         this.add_child(box);
 
@@ -112,33 +123,44 @@ class RadioPanel extends PanelMenu.Button {
         });
         this.menu.addMenuItem(stopMenuItem);
 
-        // --- Mute Button ---
-        let muteContainer = new St.BoxLayout({
+        // --- Volume Slider ---
+        let volumeContainer = new St.BoxLayout({
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER
         });
         this._muteIcon = new St.Icon({
-            icon_name: 'audio-volume-high-symbolic',
+            icon_name: this._volumeIconName(this._isMuted ? 0 : this._volume),
             icon_size: 18,
             style_class: 'liveradio-controls-icon'
         });
-        muteContainer.add_child(this._muteIcon);
-        this._muteLabel = new St.Label({
-            text: _('Mute'),
-            y_align: Clutter.ActorAlign.CENTER
-        });
-        muteContainer.add_child(this._muteLabel);
-
-        let muteMenuItem = new PopupMenu.PopupBaseMenuItem({
+        let muteButton = new St.Button({
+            child: this._muteIcon,
+            y_align: Clutter.ActorAlign.CENTER,
             reactive: true,
-            can_focus: false
+            can_focus: true
         });
-        muteMenuItem.style = 'padding: 2px; min-height: 0;';
-        muteMenuItem.add_child(muteContainer);
-        muteMenuItem.connect('activate', () => {
+        muteButton.connect('clicked', () => {
             this._toggleMute();
         });
-        this.menu.addMenuItem(muteMenuItem);
+        volumeContainer.add_child(muteButton);
+
+        this._volumeSlider = new Slider.Slider(this._isMuted ? 0 : this._volume);
+        this._volumeSlider.x_expand = true;
+        this._volumeSlider.y_align = Clutter.ActorAlign.CENTER;
+        this._volumeSlider.accessible_name = _('Volume');
+        this._volumeSlider.connect('notify::value', () => {
+            if (this._updatingSlider) return;
+            this._applyVolume(this._volumeSlider.value, false);
+        });
+        volumeContainer.add_child(this._volumeSlider);
+
+        let volumeMenuItem = new PopupMenu.PopupBaseMenuItem({
+            activate: false,
+            can_focus: false
+        });
+        volumeMenuItem.style = 'padding: 2px; min-height: 0;';
+        volumeMenuItem.add_child(volumeContainer);
+        this.menu.addMenuItem(volumeMenuItem);
 
         // --- Separator and Radio List ---
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -284,6 +306,7 @@ class RadioPanel extends PanelMenu.Button {
         if (isPlaying && radio) {
             this.nowPlayingLabel.text = radio.name;
             this.nowPlayingLabel.visible = true;
+            this.panelVolumeIcon.visible = true;
 
             if (radio.logo) {
                 const gicon = this._getGIcon(radio.logo);
@@ -299,6 +322,7 @@ class RadioPanel extends PanelMenu.Button {
         } else {
             this.nowPlayingLabel.text = _('Live Radio');
             this.radioLogo.visible = false;
+            this.panelVolumeIcon.visible = false;
         }
     }
 
@@ -309,6 +333,7 @@ class RadioPanel extends PanelMenu.Button {
 
         if (this.player.isPlaying) this.player.stop();
 
+        this.player.setVolume(this._isMuted ? 0 : this._volume);
         if (this.player.play(radio.url)) {
             this.player.setCurrentStation(radio);
             this._updateNowPlaying(true, radio);
@@ -333,47 +358,77 @@ class RadioPanel extends PanelMenu.Button {
 
         const direction = event.get_scroll_direction();
         const volumeStep = 0.05;
-        let currentVolume = this.player.getVolume();
+        let delta = 0;
 
         if (direction === Clutter.ScrollDirection.UP) {
-            currentVolume = this.player.setVolume(currentVolume + volumeStep);
+            delta = volumeStep;
         } else if (direction === Clutter.ScrollDirection.DOWN) {
-            currentVolume = this.player.setVolume(currentVolume - volumeStep);
+            delta = -volumeStep;
+        } else if (direction === Clutter.ScrollDirection.SMOOTH) {
+            const [, dy] = event.get_scroll_delta();
+            if (dy === 0) {
+                return Clutter.EVENT_PROPAGATE;
+            }
+            delta = -dy * volumeStep;
+        } else {
+            return Clutter.EVENT_PROPAGATE;
         }
 
-        // Update mute state to reflect scroll changes
-        this._updateMuteUI(currentVolume === 0);
+        const baseVolume = this._isMuted ? 0 : this._volume;
+        const nextVolume = this._applyVolume(baseVolume + delta);
+        this._showVolumeOsd(nextVolume);
 
         return Clutter.EVENT_STOP;
     }
 
-    _toggleMute() {
-        if (!this.player) return;
+    _showVolumeOsd(volume) {
+        const icon = Gio.ThemedIcon.new(this._volumeIconName(volume));
+        const station = this.player?.getCurrentStation();
+        const pct = Math.round(volume * 100);
+        const label = station ? `${station.name} — ${pct}%` : `${pct}%`;
+        Main.osdWindowManager.show(-1, icon, label, volume);
+    }
 
+    _applyVolume(volume, updateSlider = true) {
+        volume = Math.max(0.0, Math.min(1.0, volume));
+        this._volume = volume;
+        if (this.player) {
+            this.player.setVolume(volume);
+        }
+        if (updateSlider && this._volumeSlider) {
+            this._updatingSlider = true;
+            this._volumeSlider.value = volume;
+            this._updatingSlider = false;
+        }
+        this._updateMuteUI(volume === 0, volume);
+        return volume;
+    }
+
+    _toggleMute() {
         if (this._isMuted) {
-            // Unmute: restore previous volume
-            this.player.setVolume(this._volumeBeforeMute);
-            this._updateMuteUI(false);
+            const target = this._volumeBeforeMute > 0 ? this._volumeBeforeMute : 1.0;
+            this._applyVolume(target);
         } else {
-            // Mute: save current volume and set to 0
-            this._volumeBeforeMute = this.player.getVolume();
-            if (this._volumeBeforeMute === 0) {
-                this._volumeBeforeMute = 1.0; // Don't save 0 as "before mute"
-            }
-            this.player.setVolume(0);
-            this._updateMuteUI(true);
+            this._volumeBeforeMute = this._volume > 0 ? this._volume : 1.0;
+            this._applyVolume(0);
         }
     }
 
-    _updateMuteUI(muted) {
+    _volumeIconName(volume) {
+        if (volume <= 0) return 'audio-volume-muted-symbolic';
+        if (volume < 0.34) return 'audio-volume-low-symbolic';
+        if (volume < 0.67) return 'audio-volume-medium-symbolic';
+        return 'audio-volume-high-symbolic';
+    }
+
+    _updateMuteUI(muted, volume = this._volume) {
         this._isMuted = muted;
+        const iconName = this._volumeIconName(muted ? 0 : volume);
         if (this._muteIcon) {
-            this._muteIcon.icon_name = muted
-                ? 'audio-volume-muted-symbolic'
-                : 'audio-volume-high-symbolic';
+            this._muteIcon.icon_name = iconName;
         }
-        if (this._muteLabel) {
-            this._muteLabel.text = muted ? _('Unmute') : _('Mute');
+        if (this.panelVolumeIcon) {
+            this.panelVolumeIcon.icon_name = iconName;
         }
     }
 
