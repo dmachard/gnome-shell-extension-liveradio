@@ -13,21 +13,11 @@ Listen to live radio stations directly from the GNOME Shell panel
 - Stop/Mute buttons
 - Scroll volume control
 
-## Compatibility
-
-| GNOME Shell Version | Supported |
-|---------------------|-----------|
-| 48                  | ✅        |
-| 49                  | ✅        |
-| 50                  | ✅        |
-| 51                  | ✅        |
-
 ## Installation
-
 
 ## Requirements
 
-- GNOME Shell 48 or later
+- GNOME Shell `48`, `49`, `50`, or `51`
 - GStreamer plugins for audio playback:
   ```bash
   sudo apt install gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
@@ -149,6 +139,5 @@ Before uploading, you can run the Shexli static analyzer locally to catch common
 virtualenv venv
 . venv/bin/activate
 pip install -U shexli
-pip install "tree-sitter<0.26.0"
 shexli ~/liveradio@dmachard.dev.shell-extension.zip
 ```

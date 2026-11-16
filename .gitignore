@@ -1,0 +1,15 @@
+# GNOME Shell extension build artifacts
+schemas/gschemas.compiled
+*.shell-extension.zip
+*.zip
+locale/
+*.mo
+
+# Python / tooling
+venv/
+__pycache__/
+
+# Editor / OS
+.vscode/
+.DS_Store
+
