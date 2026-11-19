@@ -121,8 +121,6 @@ Update the version in `metadata.json`
 Zip and upload at  https://extensions.gnome.org/upload/
 
 ```bash
-cd ~/.local/share/gnome-shell/extensions/liveradio@dmachard.dev
-
 zip -r ~/liveradio@dmachard.dev.shell-extension.zip \
     extension.js \
     prefs.js \
