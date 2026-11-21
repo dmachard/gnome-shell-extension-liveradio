@@ -333,6 +333,12 @@ class RadioPanel extends PanelMenu.Button {
     _playRadio(radio, menuItem) {
         if (!this.player) {
             this.player = new RadioPlayer();
+            this._playerStoppedId = this.player.connect('stopped', (_player, errorMsg) => {
+                this._updateNowPlaying(false);
+                if (errorMsg) {
+                    Main.notify(_('Live Radio'), _('Playback error: ') + errorMsg);
+                }
+            });
         }
 
         if (this.player.isPlaying) this.player.stop();
@@ -475,7 +481,15 @@ class RadioPanel extends PanelMenu.Button {
     }
 
     destroy() {
+        if (this._settingsChangedId) {
+            this.settings.disconnect(this._settingsChangedId);
+            this._settingsChangedId = 0;
+        }
         if (this.player) {
+            if (this._playerStoppedId) {
+                this.player.disconnect(this._playerStoppedId);
+                this._playerStoppedId = 0;
+            }
             this.player.stop();
             this.player = null;
         }

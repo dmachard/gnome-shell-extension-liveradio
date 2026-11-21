@@ -10,8 +10,11 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 
-export const RadioPlayer = GObject.registerClass(
-class RadioPlayer extends GObject.Object {
+export const RadioPlayer = GObject.registerClass({
+    Signals: {
+        'stopped': { param_types: [GObject.TYPE_STRING] },
+    },
+}, class RadioPlayer extends GObject.Object {
     _init() {
         super._init();
         this.pipeline = null;
@@ -126,8 +129,10 @@ class RadioPlayer extends GObject.Object {
             let [error, debug] = message.parse_error();
             console.error(`[LiveRadio] ERROR message: ${error.message} (${debug})`);
             this.stop();
+            this.emit('stopped', error.message || '');
         } else if (type === Gst.MessageType.EOS) {
             this.stop();
+            this.emit('stopped', '');
         }
     }
 });
