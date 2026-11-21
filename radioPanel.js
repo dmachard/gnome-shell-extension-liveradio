@@ -27,6 +27,7 @@ class RadioPanel extends PanelMenu.Button {
         this.player = null;
         this._volume = 1.0;
         this._isMuted = false;
+        this._isPlaying = false;
         this._volumeBeforeMute = 1.0;
         this._updatingSlider = false;
 
@@ -43,13 +44,28 @@ class RadioPanel extends PanelMenu.Button {
         const isWayland = GLib.getenv('XDG_SESSION_TYPE') === 'wayland';
         const topBarHeight = Main.panel.height;
 
+        const logoSize = Math.floor(topBarHeight * (isWayland ? 0.6 : 0.3));
+        this.radioLogoContainer = new St.Widget({
+            layout_manager: new Clutter.BinLayout(),
+            style_class: 'liveradio-radio-logo',
+            y_align: Clutter.ActorAlign.CENTER,
+            visible: false
+        });
         this.radioLogo = new St.Icon({
             icon_name: 'audio-x-generic-symbolic',
-            style_class: 'liveradio-radio-logo',
-            visible: false,
-            icon_size: Math.floor(topBarHeight * (isWayland ? 0.6 : 0.3))
+            icon_size: logoSize
         });
-        box.add_child(this.radioLogo);
+        this.radioMuteSlash = new St.DrawingArea({
+            width: logoSize,
+            height: logoSize,
+            x_expand: true,
+            y_expand: true,
+            visible: false
+        });
+        this.radioMuteSlash.connect('repaint', area => this._drawMuteSlash(area));
+        this.radioLogoContainer.add_child(this.radioLogo);
+        this.radioLogoContainer.add_child(this.radioMuteSlash);
+        box.add_child(this.radioLogoContainer);
 
         this.nowPlayingLabel = new St.Label({
             text: _('Live Radio'),
@@ -58,14 +74,6 @@ class RadioPanel extends PanelMenu.Button {
             visible: true
         });
         box.add_child(this.nowPlayingLabel);
-
-        this.panelVolumeIcon = new St.Icon({
-            icon_name: this._volumeIconName(this._volume),
-            style_class: 'liveradio-panel-volume',
-            visible: false,
-            icon_size: Math.floor(topBarHeight * (isWayland ? 0.5 : 0.3))
-        });
-        box.add_child(this.panelVolumeIcon);
 
         this.add_child(box);
 
@@ -303,27 +311,23 @@ class RadioPanel extends PanelMenu.Button {
     }
 
     _updateNowPlaying(isPlaying, radio = null) {
-        if (isPlaying && radio) {
+        this._isPlaying = isPlaying && Boolean(radio);
+        if (this._isPlaying) {
             this.nowPlayingLabel.text = radio.name;
             this.nowPlayingLabel.visible = true;
-            this.panelVolumeIcon.visible = true;
 
-            if (radio.logo) {
-                const gicon = this._getGIcon(radio.logo);
-                if (gicon) {
-                    this.radioLogo.gicon = gicon;
-                    this.radioLogo.visible = true;
-                } else {
-                    this.radioLogo.visible = false;
-                }
+            const gicon = radio.logo ? this._getGIcon(radio.logo) : null;
+            if (gicon) {
+                this.radioLogo.gicon = gicon;
+                this.radioLogoContainer.visible = true;
             } else {
-                this.radioLogo.visible = false;
+                this.radioLogoContainer.visible = false;
             }
         } else {
             this.nowPlayingLabel.text = _('Live Radio');
-            this.radioLogo.visible = false;
-            this.panelVolumeIcon.visible = false;
+            this.radioLogoContainer.visible = false;
         }
+        this._syncPanelMutedUI();
     }
 
     _playRadio(radio, menuItem) {
@@ -427,9 +431,47 @@ class RadioPanel extends PanelMenu.Button {
         if (this._muteIcon) {
             this._muteIcon.icon_name = iconName;
         }
-        if (this.panelVolumeIcon) {
-            this.panelVolumeIcon.icon_name = iconName;
+        this._syncPanelMutedUI();
+    }
+
+    _syncPanelMutedUI() {
+        const showMuted = this._isMuted && this._isPlaying;
+        if (this.nowPlayingLabel) {
+            this.nowPlayingLabel.opacity = showMuted ? 140 : 255;
         }
+        if (this.radioMuteSlash) {
+            this.radioMuteSlash.visible = showMuted;
+            if (showMuted) {
+                this.radioMuteSlash.queue_repaint();
+            }
+        }
+        if (this.radioLogo) {
+            this.radioLogo.opacity = showMuted ? 160 : 255;
+        }
+    }
+
+    _drawMuteSlash(area) {
+        const [width, height] = area.get_surface_size();
+        const cr = area.get_context();
+        const fg = area.get_theme_node().get_foreground_color();
+        const pad = Math.max(2, Math.min(width, height) * 0.14);
+
+        cr.setLineCap(1); // CAIRO_LINE_CAP_ROUND
+
+        // Dark backing stroke keeps the slash legible over bright radio logos
+        const strokes = [
+            [0, 0, 0, 0.75, Math.max(3, width * 0.18)],
+            [fg.red / 255, fg.green / 255, fg.blue / 255, fg.alpha / 255, Math.max(1.8, width * 0.11)]
+        ];
+        for (const [r, g, b, a, lineWidth] of strokes) {
+            cr.setSourceRGBA(r, g, b, a);
+            cr.setLineWidth(lineWidth);
+            cr.moveTo(pad, height - pad);
+            cr.lineTo(width - pad, pad);
+            cr.stroke();
+        }
+
+        cr.$dispose();
     }
 
     destroy() {
